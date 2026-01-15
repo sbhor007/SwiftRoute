@@ -11,10 +11,13 @@ spring:
         format_sql: true
 
   datasource:
-    url: jdbc:mysql://localhost:${DB_PORT}/${DB_NAME}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+#    url: jdbc:mysql://localhost:${DB_PORT}/${DB_NAME}
+#    username: ${DB_USERNAME}
+#    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/swiftroute
+    username: root
+    password: root
 #-----------Docker configuration-------------
 #spring:
 #  application:
