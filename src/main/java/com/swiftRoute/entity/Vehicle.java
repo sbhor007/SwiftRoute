@@ -16,21 +16,30 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Vehicle {
-	 @Id
-	    @GeneratedValue(strategy = GenerationType.UUID)
-	    private UUID id;
 
-	    @Column(name = "vehicle_number", unique = true, nullable = false)
-	    private String vehicleNumber;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-	    private String model;
-	    private Integer capacity;
+    @Column(name = "vehicle_number", unique = true, nullable = false)
+    private String vehicleNumber;
 
-	    private LocalDateTime createdAt;
+    private String model;
 
-	    @PrePersist
-	    void onCreate() {
-	        createdAt = LocalDateTime.now();
-	    }
+    private Integer capacity;
 
+    @Column(nullable = false)
+    private Boolean isActive;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_driver_id")
+    private Driver assignedDriver;
+
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = LocalDateTime.now();
+        if (isActive == null) isActive = true;
+    }
 }
