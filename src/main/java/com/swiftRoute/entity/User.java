@@ -18,33 +18,42 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
-	 @Id
-	    @GeneratedValue(strategy = GenerationType.UUID)
-	    private UUID id;
 
-	    @Column(nullable = false, length = 100)
-	    private String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-	    @Column(nullable = false, unique = true, length = 150)
-	    private String email;
+    @Column(nullable = false, length = 100)
+    private String name;
 
-	    @Column(nullable = false)
-	    private String password;
+    @Column(nullable = false, unique = true, length = 150)
+    private String email;
 
-	    @Enumerated(EnumType.STRING)
-	    @Column(nullable = false)
-	    private UserRole role;
+    @Column(nullable = false)
+    private String password;
 
-	    private LocalDateTime createdAt;
-	    private LocalDateTime updatedAt;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role;
 
-	    @PrePersist
-	    void onCreate() {
-	        createdAt = LocalDateTime.now();
-	    }
+    @Column(nullable = false)
+    private Boolean enabled;
 
-	    @PreUpdate
-	    void onUpdate() {
-	        updatedAt = LocalDateTime.now();
-	    }
+    @Column(nullable = false)
+    private Boolean accountLocked;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        createdAt = LocalDateTime.now();
+        if (enabled == null) enabled = true;
+        if (accountLocked == null) accountLocked = false;
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

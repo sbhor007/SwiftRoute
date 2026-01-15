@@ -1,6 +1,8 @@
 package com.swiftRoute.enums;
 
 public enum TripStatus {
-	COMPLETED,
+    CREATED,
+    IN_PROGRESS,
+    COMPLETED,
     CANCELLED
 }

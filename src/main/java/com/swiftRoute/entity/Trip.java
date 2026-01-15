@@ -19,7 +19,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Trip {
-	@Id
+
+    @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
@@ -32,6 +33,7 @@ public class Trip {
     private Vehicle vehicle;
 
     private LocalDateTime startTime;
+
     private LocalDateTime endTime;
 
     @Column(precision = 10, scale = 2)
@@ -43,6 +45,7 @@ public class Trip {
     private BigDecimal fareAmount;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TripStatus status;
 
     private LocalDateTime createdAt;
@@ -50,5 +53,6 @@ public class Trip {
     @PrePersist
     void onCreate() {
         createdAt = LocalDateTime.now();
+        if (status == null) status = TripStatus.CREATED;
     }
 }

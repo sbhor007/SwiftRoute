@@ -1,6 +1,6 @@
 package com.swiftRoute.enums;
 
 public enum UserRole {
-	ADMIN,
+    ADMIN,
     OPERATOR
 }

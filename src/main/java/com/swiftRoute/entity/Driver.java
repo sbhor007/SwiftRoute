@@ -18,24 +18,36 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Driver {
-	@Id
+
+    @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-	@Column(name = "driver_code", unique = true, nullable = false)
+    @Column(name = "driver_code", unique = true, nullable = false)
     private String driverCode;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String phone;
-    private String vehicleNumber;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private DriverStatus status;
+
+    @Column(nullable = false)
+    private Boolean isAvailable;
+
+    @Column(nullable = false)
+    private Boolean isVerified;
 
     private LocalDateTime createdAt;
 
     @PrePersist
     void onCreate() {
         createdAt = LocalDateTime.now();
+        if (isAvailable == null) isAvailable = false;
+        if (isVerified == null) isVerified = false;
     }
 }
