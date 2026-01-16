@@ -21,10 +21,14 @@ spring:
   data:
     redis:
       host: localhost
-      port: 8001
+      port: 6379
       database: 0
-      connect-timeout: 60000
-#-----------Docker configuration-------------
+      connect-timeout: 5000
+      ssl:
+        enabled: false
+
+
+        #-----------Docker configuration-------------
 #spring:
 #  application:
 #    name: SwiftRoute
