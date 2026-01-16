@@ -26,6 +26,14 @@ spring:
       connect-timeout: 5000
       ssl:
         enabled: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
 
 jwt:
   secret-key: "fsdmfdlsmfdfndsfkndsfndsnfdsnfdsnfjdfdsnfkjdf"
