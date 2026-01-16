@@ -27,6 +27,8 @@ spring:
       ssl:
         enabled: false
 
+jwt:
+  secret-key: "fsdmfdlsmfdfndsfkndsfndsnfdsnfdsnfjdfdsnfkjdf"
 
         #-----------Docker configuration-------------
 #spring:
