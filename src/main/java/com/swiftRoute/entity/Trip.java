@@ -35,7 +35,6 @@ public class Trip {
     private Vehicle vehicle;
 
     private LocalDateTime startTime;
-
     private LocalDateTime endTime;
 
     @Column(precision = 10, scale = 2)
@@ -55,6 +54,6 @@ public class Trip {
     @PrePersist
     void onCreate() {
         createdAt = LocalDateTime.now();
-        if (status == null) status = TripStatus.REQUESTED;
+        if (status == null) status = TripStatus.CREATED;
     }
 }

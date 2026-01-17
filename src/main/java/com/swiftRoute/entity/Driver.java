@@ -44,6 +44,10 @@ public class Driver {
 
     @Column(nullable = false)
     private Boolean isVerified;
+    
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
 
     @OneToMany(mappedBy = "driver", fetch = FetchType.LAZY)
     private List<Trip> trips;
