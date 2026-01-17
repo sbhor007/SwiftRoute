@@ -1,5 +1,6 @@
 package com.swiftRoute.controller;
 
+import com.swiftRoute.annotation.RateLimit;
 import com.swiftRoute.records.auth.LoginRequest;
 import com.swiftRoute.records.user.RegisterRequest;
 import com.swiftRoute.response.ApiResponse;
@@ -32,6 +33,7 @@ public class AuthController {
 
     }
 
+    @RateLimit(limit = 2, window = 100)
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<?>> login(@RequestBody LoginRequest loginRequest){
         try {
