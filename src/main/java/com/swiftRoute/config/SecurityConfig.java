@@ -78,6 +78,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
+        log.info("Inside Authentication Manager..");
         return authenticationConfiguration.getAuthenticationManager();
 
     }

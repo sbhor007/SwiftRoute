@@ -30,39 +30,32 @@ public class JwtFilterChain extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            log.info("Inside JwtFilterChain");
-            log.info("Request URI: {}", request.getRequestURI());
             String authorizationHeader = request.getHeader("Authorization");
-            log.info("Authorization Header: {}", authorizationHeader);
-            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-                log.info("Missing or invalid Authorization header");
-                filterChain.doFilter(request, response);
-                return;
+
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7); // Use substring instead of split
+                String username = jwtUtil.getUsernameFromToken(token);
+                String role = jwtUtil.getRoleFromToken(token);
+
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    User user = userRepository.findByEmail(username)
+                            .orElseThrow(() -> new RuntimeException("User not found"));
+
+                    Collection<SimpleGrantedAuthority> authorities =
+                            List.of(new SimpleGrantedAuthority("ROLE_" + role));
+
+                    // Use the User object directly, not just email
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(user, null, authorities);
+
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
-            String token = authorizationHeader.split("Bearer")[1].trim();
-            log.info("Extracted Token: {}", token);
-            String username = jwtUtil.getUsernameFromToken(token);
-            String role = jwtUtil.getRoleFromToken(token);
-
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-//			    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                User user = userRepository.findByEmail(username).orElse(null);
-                log.info("User fetched from DB: {}", user);
-                Collection<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
-                log.info("Authorities: {}", authorities);
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null,
-                        authorities);
-                log.info("Authentication Token: {}", authToken);
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-                log.info("Security Context updated with authentication");
-            }
-            log.info("Proceeding with filter chain");
-            filterChain.doFilter(request, response);
-
         } catch (Exception e) {
-            log.error("Error in JwtFilterChain: {}", e.getMessage());
-            filterChain.doFilter(request, response);
+            log.error("Error in JwtFilterChain: {}", e.getMessage(), e);
         }
+        filterChain.doFilter(request, response);
+
+
     }
 }
