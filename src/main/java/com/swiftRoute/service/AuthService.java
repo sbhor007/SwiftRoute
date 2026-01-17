@@ -6,6 +6,7 @@ import com.swiftRoute.records.user.RegisterRequest;
 import com.swiftRoute.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
-
+    private final PasswordEncoder passwordEncoder;
     public void register(RegisterRequest registerRequest){
         try{
             if(emailAlreadyExist(registerRequest.email(),registerRequest.role())){
@@ -24,7 +25,7 @@ public class AuthService {
             User user = User.builder()
                     .name(registerRequest.name())
                     .email(registerRequest.email())
-                    .password(registerRequest.password())
+                    .password(passwordEncoder.encode(registerRequest.password()))
                     .role(registerRequest.role())
                     .build();
             log.info("User information : {}",user.getRole());

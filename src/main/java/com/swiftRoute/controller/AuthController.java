@@ -1,9 +1,11 @@
 package com.swiftRoute.controller;
 
 import com.swiftRoute.records.user.RegisterRequest;
+import com.swiftRoute.response.ApiResponse;
 import com.swiftRoute.service.AuthService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,10 +24,9 @@ public class AuthController {
         try{
             log.info("User Registration Request: {}",registerRequest);
             authService.register(registerRequest);
-            return ResponseEntity.ok().body("User Register successfully");
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(HttpStatus.OK,"User Register Cussessfully",null));
         }catch (Exception e){
-            return ResponseEntity.badRequest()
-                    .body("User registration failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(HttpStatus.BAD_REQUEST, STR."User Registration Fail : \{e.getMessage()}",null));
         }
 
     }
