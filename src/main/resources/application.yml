@@ -34,6 +34,11 @@ management:
   endpoint:
     health:
       show-details: always
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
 
 jwt:
   secret-key: "fsdmfdlsmfdfndsfkndsfndsnfdsnfdsnfjdfdsnfkjdf"
