@@ -5,10 +5,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "trip_receipts")
@@ -26,25 +23,29 @@ public class TripReceipt {
     @JoinColumn(name = "trip_id", nullable = false, unique = true)
     private Trip trip;
 
-    @Column(precision = 10, scale = 2, nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal baseFare;
 
-    @Column(precision = 10, scale = 2, nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal distanceFare;
 
-    @Column(precision = 10, scale = 2, nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal timeFare;
 
-    @Column(precision = 10, scale = 2, nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal tax;
 
-    @Column(precision = 10, scale = 2, nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal total;
+
+    @Column(nullable = false)
+    private String currency;
 
     private LocalDateTime generatedAt;
 
     @PrePersist
     void onCreate() {
         generatedAt = LocalDateTime.now();
+        if (currency == null) currency = "INR";
     }
 }

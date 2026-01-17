@@ -1,18 +1,21 @@
 package com.swiftRoute.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import com.swiftRoute.enums.DriverStatus;
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
-@Table(name = "drivers")
+@Table(
+        name = "drivers",
+        indexes = {
+                @Index(name = "idx_driver_code", columnList = "driver_code"),
+                @Index(name = "idx_driver_status", columnList = "status")
+        }
+)
 @Getter
 @Setter
 @AllArgsConstructor
@@ -23,7 +26,7 @@ public class Driver {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "driver_code", unique = true, nullable = false)
+    @Column(name = "driver_code", nullable = false, unique = true)
     private String driverCode;
 
     @Column(nullable = false)
@@ -41,6 +44,9 @@ public class Driver {
 
     @Column(nullable = false)
     private Boolean isVerified;
+
+    @OneToMany(mappedBy = "driver", fetch = FetchType.LAZY)
+    private List<Trip> trips;
 
     private LocalDateTime createdAt;
 

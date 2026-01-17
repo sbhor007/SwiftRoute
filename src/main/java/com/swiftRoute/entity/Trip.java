@@ -5,15 +5,17 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.swiftRoute.enums.TripStatus;
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
-@Table(name = "trips")
+@Table(
+        name = "trips",
+        indexes = {
+                @Index(name = "idx_trip_driver", columnList = "driver_id"),
+                @Index(name = "idx_trip_status", columnList = "status")
+        }
+)
 @Getter
 @Setter
 @AllArgsConstructor
@@ -53,6 +55,6 @@ public class Trip {
     @PrePersist
     void onCreate() {
         createdAt = LocalDateTime.now();
-        if (status == null) status = TripStatus.CREATED;
+        if (status == null) status = TripStatus.REQUESTED;
     }
 }
