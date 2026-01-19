@@ -38,24 +38,49 @@ public class JwtFilterChain extends OncePerRequestFilter {
                 String role = jwtUtil.getRoleFromToken(token);
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    User user = userRepository.findByEmail(username)
-                            .orElseThrow(() -> new RuntimeException("User not found"));
+//                    User user = userRepository.findByEmail(username)
+//                            .orElseThrow(() -> new RuntimeException("User not found"));
 
                     Collection<SimpleGrantedAuthority> authorities =
                             List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
                     // Use the User object directly, not just email
                     UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(user, null, authorities);
+                            new UsernamePasswordAuthenticationToken(username, null, authorities);
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            sendError(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    "JWT token has expired");
+
+        } catch (io.jsonwebtoken.MalformedJwtException e) {
+            sendError(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    "Invalid JWT token");
+
+        } catch (io.jsonwebtoken.security.SignatureException e) {
+            sendError(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    "JWT signature is invalid");
+
         } catch (Exception e) {
-            log.error("Error in JwtFilterChain: {}", e.getMessage(), e);
+            sendError(response, HttpServletResponse.SC_UNAUTHORIZED,
+                    "Authentication failed");
         }
         filterChain.doFilter(request, response);
-
-
     }
+
+    private void sendError(HttpServletResponse response, int status, String message)
+            throws IOException {
+
+        response.setStatus(status);
+        response.setContentType("application/json");
+        response.getWriter().write("""
+        {
+          "success": false,
+          "message": "%s"
+        }
+        """.formatted(message));
+    }
+
 }

@@ -1,10 +1,12 @@
 package com.swiftRoute.service;
 
+import com.swiftRoute.annotation.RedisCacheable;
 import com.swiftRoute.entity.User;
 import com.swiftRoute.enums.UserRole;
 import com.swiftRoute.records.auth.LoginRequest;
 import com.swiftRoute.records.auth.LoginResponse;
 import com.swiftRoute.records.user.RegisterRequest;
+import com.swiftRoute.records.user.UserProfileResponse;
 import com.swiftRoute.repository.UserRepository;
 import com.swiftRoute.util.JwtUtil;
 import jakarta.transaction.Transactional;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -26,7 +29,9 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private  final JwtUtil jwtUtil;
-
+    /*
+    User Registration
+     */
     @Transactional
     public void register(RegisterRequest registerRequest){
         try{
@@ -47,7 +52,9 @@ public class AuthService {
             throw new RuntimeException(e.getMessage());
         }
     }
-
+    /*
+    User Login based on UserRole
+     */
     public Optional<LoginResponse> login(LoginRequest request) {
         log.info("Login attempt for user: {}", request.username());
 
@@ -58,7 +65,8 @@ public class AuthService {
 
             User user = (User) authentication.getPrincipal();
 
-            if (user.getRole() != request.role()) {
+            if (user == null || user.getRole() != request.role()) {
+                assert user != null;
                 log.error("Role mismatch: expected {}, found {}", request.role(), user.getRole());
                 throw new RuntimeException("Invalid Credentials");
             }
@@ -71,7 +79,26 @@ public class AuthService {
             throw new RuntimeException("Invalid Credentials");
         }
     }
-
+    /*
+    Get User Profile
+     */
+    @RedisCacheable(
+            key = "'profile:' + #username",
+            ttl = 500,
+            unit = TimeUnit.SECONDS
+    )
+    public UserProfileResponse userProfile(String username){
+        User user = userRepository.findByEmail(username).orElse(null);
+        if(user == null)
+            throw new RuntimeException("User Profile not found");
+        return new UserProfileResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole(),
+                user.getCreatedAt()
+        );
+    }
 
     private boolean emailAlreadyExist(String email, UserRole role){
             log.info("check email and Role already exist");

@@ -11,5 +11,5 @@ public @interface RateLimit {
     // max requests
     int limit();
     // seconds
-    int window();
+    int ttl();
 }

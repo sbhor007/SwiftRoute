@@ -16,8 +16,10 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 
 @Aspect
 @Component
@@ -28,6 +30,9 @@ public class RedisCacheAspect {
     private final RedisTemplate<String,Object> redisTemplate;
     private final ExpressionParser parser = new SpelExpressionParser();
 
+    /*
+    RedisCacheble annotation AOP Logic
+     */
     @Around("@annotation(redisCacheable)")
     public Object cacheable(ProceedingJoinPoint joinPoint, RedisCacheable redisCacheable) throws Throwable {
         log.info("inside cacheable...");
@@ -36,7 +41,7 @@ public class RedisCacheAspect {
         Object cached = redisTemplate.opsForValue().get(key);
         if(cached != null){
             log.info("Cache HIT for key: {}", key);
-            return cached;
+            return convertIfNecessary(cached,joinPoint);
         }
         log.info("Cache MISS for key: {}", key);
         Object result = joinPoint.proceed();
@@ -101,5 +106,20 @@ public class RedisCacheAspect {
             return method.getName() + ":" + String.join("_",
                     java.util.Arrays.stream(args).map(String::valueOf).toArray(String[]::new));
         }
+    }
+
+    /*
+    When Redis stores complex Java objects (like DTOs),
+    they are often deserialized as LinkedHashMap instead of the original class.
+     */
+    private Object convertIfNecessary(Object cached, ProceedingJoinPoint joinPoint) {
+        if (cached instanceof LinkedHashMap<?, ?>) {
+            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+            Class<?> returnType = signature.getReturnType();
+
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.convertValue(cached, returnType);
+        }
+        return cached;
     }
 }

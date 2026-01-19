@@ -11,12 +11,12 @@ import java.util.concurrent.TimeUnit;
 public class RedisRateLimiterService {
     private final RedisTemplate redisTemplate;
 
-    public boolean allowRequest(String key, int limitRequests, int windowSeconds){
+    public boolean allowRequest(String key, int limitRequests, int ttl){
 
         /*remove old request*/
         long now  = System.currentTimeMillis();
         redisTemplate.opsForZSet()
-                .removeRangeByScore(key,0,now-windowSeconds * 1000L);
+                .removeRangeByScore(key,0,now-ttl * 1000L);
 
         /* Count Number of Requests */
         Long count = redisTemplate.opsForZSet().zCard(key);
@@ -29,7 +29,7 @@ public class RedisRateLimiterService {
                 .add(key,String.valueOf(now),now);
 
         /* set expiry */
-        redisTemplate.expire(key,windowSeconds, TimeUnit.SECONDS);
+        redisTemplate.expire(key,ttl, TimeUnit.SECONDS);
 
         return true;
     }

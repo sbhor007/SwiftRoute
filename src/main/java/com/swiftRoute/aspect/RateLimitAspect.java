@@ -32,7 +32,7 @@ public class RateLimitAspect {
         boolean allowed = rateLimiterService.allowRequest(
                 redisKey,
                 rateLimit.limit(),
-                rateLimit.window()
+                rateLimit.ttl()
         );
 
         if(!allowed){
