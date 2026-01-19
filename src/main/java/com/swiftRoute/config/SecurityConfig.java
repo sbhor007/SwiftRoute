@@ -41,6 +41,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/hello").permitAll()
+                        .requestMatchers("/test/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class);
 
