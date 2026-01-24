@@ -5,7 +5,6 @@ import com.swiftRoute.annotation.RedisCachePut;
 import com.swiftRoute.annotation.RedisCacheable;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Around;
@@ -31,7 +30,7 @@ public class RedisCacheAspect {
     private final ExpressionParser parser = new SpelExpressionParser();
 
     /*
-    RedisCacheble annotation AOP Logic
+    RedisCacheable annotation AOP Logic
      */
     @Around("@annotation(redisCacheable)")
     public Object cacheable(ProceedingJoinPoint joinPoint, RedisCacheable redisCacheable) throws Throwable {
