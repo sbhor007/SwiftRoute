@@ -3,12 +3,11 @@ package com.swiftRoute.controller;
 import com.swiftRoute.annotation.RateLimit;
 import com.swiftRoute.records.auth.LoginRequest;
 import com.swiftRoute.records.user.RegisterRequest;
-import com.swiftRoute.records.user.UserProfileResponse;
 import com.swiftRoute.response.ApiResponse;
 import com.swiftRoute.service.AuthService;
+import com.swiftRoute.service.OTPService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,7 +19,11 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class AuthController {
     private final AuthService authService;
+    private final OTPService otpService;
 
+    /*
+    User Registration Endpoint
+     */
     @RateLimit(limit = 4, ttl = 60)
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest){
@@ -34,6 +37,9 @@ public class AuthController {
 
     }
 
+    /*
+    User Login Endpoint
+     */
     @RateLimit(limit = 4, ttl = 60)
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<?>> login(@RequestBody LoginRequest loginRequest){
@@ -47,6 +53,9 @@ public class AuthController {
         }
     }
 
+    /*
+    User Profile Endpoint
+     */
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<?>> userProfile(Authentication authentication){
         if(authentication == null || !authentication.isAuthenticated()){
@@ -60,4 +69,50 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(HttpStatus.BAD_REQUEST,e.getMessage(), null));
         }
     }
+
+    /*
+    Send OTP Endpoint
+     */
+    @RateLimit(limit = 4, ttl = 60)
+    @PostMapping("/send-otp/{email}")
+    public ResponseEntity<ApiResponse<?>> sendOtp(@PathVariable String email){
+        log.info("Sending OTP to email: {}", email);
+        try{
+            otpService.sendOtp(email);
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                    HttpStatus.OK,
+                    "OTP send successfully",
+                    null
+            ));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse<>(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    e.getMessage(),
+                    null
+            ));
+        }
+    }
+
+    /*
+    Verify OTP Endpoint
+     */
+    @PostMapping("/verify-otp")
+    public ResponseEntity<ApiResponse<?>> verifyOtp(@RequestParam String email,@RequestParam String otp){
+        log.info("Verifying OTP for email: {}", email);
+            if(otpService.verifyOtp(email,otp)){
+                return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                        HttpStatus.OK,
+                        "Otp Verified Successfully",
+                        null
+                ));
+            }else{
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                        HttpStatus.BAD_REQUEST,
+                        "Invalid OTP",
+                        null
+                ));
+            }
+    }
+
+
 }
