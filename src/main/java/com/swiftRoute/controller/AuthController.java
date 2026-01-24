@@ -6,6 +6,7 @@ import com.swiftRoute.records.user.RegisterRequest;
 import com.swiftRoute.response.ApiResponse;
 import com.swiftRoute.service.AuthService;
 import com.swiftRoute.service.OTPService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @AllArgsConstructor
 @Slf4j
+@Tag(name = "Authentication", description = "Endpoints for user registration, login, OTP, and profile management")
 public class AuthController {
     private final AuthService authService;
     private final OTPService otpService;

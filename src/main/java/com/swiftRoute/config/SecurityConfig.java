@@ -42,6 +42,10 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/hello","/send/mail").permitAll()
                         .requestMatchers("/test/**").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class);
 
