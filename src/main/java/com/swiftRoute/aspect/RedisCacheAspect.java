@@ -72,7 +72,7 @@ public class RedisCacheAspect {
     @After("@annotation(redisCacheEvict)")
     public void cacheEvict(RedisCacheEvict redisCacheEvict, ProceedingJoinPoint joinPoint){
         String key = parseKey(redisCacheEvict.key(), joinPoint);
-        redisTemplate.delete(redisCacheEvict.key());
+        redisTemplate.delete(key);
     }
 
     /**
