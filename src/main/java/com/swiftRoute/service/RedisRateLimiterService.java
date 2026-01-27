@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @AllArgsConstructor
 public class RedisRateLimiterService {
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String,Object> redisTemplate;
 
     public boolean allowRequest(String key, int limitRequests, int ttl){
 
