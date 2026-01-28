@@ -1,13 +1,12 @@
 package com.swiftRoute.util;
 
-import com.swiftRoute.entity.User;
-import com.swiftRoute.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,27 +19,26 @@ import java.util.List;
 
 @Component
 @Slf4j
+@AllArgsConstructor
 public class JwtFilterChain extends OncePerRequestFilter {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private JwtUtil jwtUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
+            log.info("JwtFilterChain: Processing request to {}", request.getRequestURI());
             String authorizationHeader = request.getHeader("Authorization");
 
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                log.info("JwtFilterChain: Found Bearer token");
                 String token = authorizationHeader.substring(7); // Use substring instead of split
                 String username = jwtUtil.getUsernameFromToken(token);
                 String role = jwtUtil.getRoleFromToken(token);
 
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-//                    User user = userRepository.findByEmail(username)
-//                            .orElseThrow(() -> new RuntimeException("User not found"));
 
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    log.info("JwtFilterChain: Authenticating user {}", username);
                     Collection<SimpleGrantedAuthority> authorities =
                             List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
@@ -54,18 +52,21 @@ public class JwtFilterChain extends OncePerRequestFilter {
         } catch (io.jsonwebtoken.ExpiredJwtException e) {
             sendError(response, HttpServletResponse.SC_UNAUTHORIZED,
                     "JWT token has expired");
+            return;
 
         } catch (io.jsonwebtoken.MalformedJwtException e) {
             sendError(response, HttpServletResponse.SC_UNAUTHORIZED,
                     "Invalid JWT token");
+            return;
 
         } catch (io.jsonwebtoken.security.SignatureException e) {
             sendError(response, HttpServletResponse.SC_UNAUTHORIZED,
                     "JWT signature is invalid");
-
+            return;
         } catch (Exception e) {
             sendError(response, HttpServletResponse.SC_UNAUTHORIZED,
                     "Authentication failed");
+            return;
         }
         filterChain.doFilter(request, response);
     }

@@ -1,12 +1,14 @@
 package com.swiftRoute.controller;
 
 import com.swiftRoute.annotation.RateLimit;
+import com.swiftRoute.records.RefreshRequest;
 import com.swiftRoute.records.auth.LoginRequest;
 import com.swiftRoute.records.user.RegisterRequest;
 import com.swiftRoute.response.ApiResponse;
 import com.swiftRoute.service.AuthService;
 import com.swiftRoute.service.OTPService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,8 +25,8 @@ public class AuthController {
     private final AuthService authService;
     private final OTPService otpService;
 
-    /*
-    User Registration Endpoint
+    /**
+     * User Registration Endpoint
      */
     @RateLimit(limit = 4, ttl = 60)
     @PostMapping("/register")
@@ -39,8 +41,8 @@ public class AuthController {
 
     }
 
-    /*
-    User Login Endpoint
+    /**
+     * User login endpoint
      */
     @RateLimit(limit = 4, ttl = 60)
     @PostMapping("/login")
@@ -55,15 +57,39 @@ public class AuthController {
         }
     }
 
-    /*
-    User Profile Endpoint
+    /**
+     * Refresh access token using valid refresh token
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<?>> refresh(@Valid @RequestBody RefreshRequest request){
+        try{
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(ApiResponse.builder()
+                            .Status(HttpStatus.CREATED)
+                            .Message("New Access Token generated")
+                            .Data(authService.refreshToken(request))
+                            .build());
+        }catch (Exception e){
+            log.error("Refresh token processing failed", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.builder()
+                            .Status(HttpStatus.BAD_REQUEST)
+                            .Message(e.getMessage())
+                            .build()
+                    );
+        }
+    }
+
+
+    /**
+    *User Profile Endpoint
      */
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<?>> userProfile(Authentication authentication){
-        if(authentication == null || !authentication.isAuthenticated()){
-            log.info("Unauthorized access");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(HttpStatus.UNAUTHORIZED,"Unauthorized user",null));
-        }
+//        if(authentication == null || !authentication.isAuthenticated()){
+//            log.info("Unauthorized access");
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(HttpStatus.UNAUTHORIZED,"Unauthorized user",null));
+//        }
         try{
             log.info("Name : {}",authentication.getName());
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(HttpStatus.OK,"user profile retrieve", authService.userProfile(authentication.getName())));
@@ -72,8 +98,8 @@ public class AuthController {
         }
     }
 
-    /*
-    Send OTP Endpoint
+    /**
+    *Send OTP Endpoint
      */
     @RateLimit(limit = 4, ttl = 60)
     @PostMapping("/send-otp/{email}")

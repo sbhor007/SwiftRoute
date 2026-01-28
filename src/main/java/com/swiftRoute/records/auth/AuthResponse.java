@@ -2,16 +2,20 @@ package com.swiftRoute.records.auth;
 
 import com.swiftRoute.enums.UserRole;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 
-import java.util.UUID;
-
-public record LoginResponse(
+@Builder
+public record AuthResponse(
         @NotBlank
         String accessToken,
         @NotBlank
         String refreshToken,
         @NotBlank
-        UserRole role
+        UserRole role,
+        String tokenType,
+        Long expiresIn,
+        String userEmail,
+        String userRole
 ) {
 
 }
