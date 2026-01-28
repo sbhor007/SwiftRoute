@@ -86,10 +86,6 @@ public class AuthController {
      */
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<?>> userProfile(Authentication authentication){
-//        if(authentication == null || !authentication.isAuthenticated()){
-//            log.info("Unauthorized access");
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(HttpStatus.UNAUTHORIZED,"Unauthorized user",null));
-//        }
         try{
             log.info("Name : {}",authentication.getName());
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(HttpStatus.OK,"user profile retrieve", authService.userProfile(authentication.getName())));
