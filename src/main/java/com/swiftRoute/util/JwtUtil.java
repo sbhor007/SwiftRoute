@@ -1,9 +1,12 @@
 package com.swiftRoute.util;
 
 import com.swiftRoute.entity.User;
+import com.swiftRoute.service.RedisService;
+import com.swiftRoute.service.TokenService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +23,7 @@ public class JwtUtil {
     @Getter
     @Value("${jwt.access-expiration-ms}")
     private long accessExpirationMs;
+    @Getter
     @Value("${jwt.refresh-expiration-ms}")
     private long refreshExpirationMs;
     private static final long CLOCK_SKEW_MS = 60_000; // 60 seconds tolerance for clock drift
@@ -35,7 +39,7 @@ public class JwtUtil {
     public String generateRefreshToken(User user) {
         return buildToken(user, refreshExpirationMs);
     }
-    public String buildToken(User user, long expirationMs) {
+    private String buildToken(User user, long expirationMs) {
         String role = user.getRole() != null ? user.getRole().name() : "UNKNOWN";
         return Jwts.builder()
                 .subject(user.getEmail())
@@ -67,11 +71,7 @@ public class JwtUtil {
      * @param token Raw JWT string (without "Bearer " prefix)
      * @return true if token is valid AND not expired (considering clock skew)
      */
-    public boolean validateToken(String token) {
-        if (token == null || token.trim().isEmpty()) {
-            log.warn("JWT validation failed: Token is null or empty");
-            return false;
-        }
+    public boolean validateJwtStructure(String token) {
 
         try {
             // Parse and validate signature + standard claims (exp, nbf)
@@ -109,6 +109,10 @@ public class JwtUtil {
     // Extract Role from JWT token
     public String getRoleFromToken(String token) {
         return getAllClaimsFromToken(token).get("role", String.class);
+    }
+
+    public long getExpirationTime(String token){
+        return getAllClaimsFromToken(token).getExpiration().getTime();
     }
 
 }

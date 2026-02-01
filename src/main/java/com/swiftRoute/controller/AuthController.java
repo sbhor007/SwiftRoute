@@ -8,6 +8,7 @@ import com.swiftRoute.response.ApiResponse;
 import com.swiftRoute.service.AuthService;
 import com.swiftRoute.service.OTPService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ public class AuthController {
      */
     @RateLimit(limit = 4, ttl = 60)
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest){
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest){
         try{
             log.info("User Registration Request: {}",registerRequest);
             authService.register(registerRequest);
@@ -46,7 +47,7 @@ public class AuthController {
      */
     @RateLimit(limit = 4, ttl = 60)
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<?>> login(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<ApiResponse<?>> login(@Valid @RequestBody LoginRequest loginRequest){
         try {
             log.info("Login attempt for user: {}", loginRequest.toString());
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(HttpStatus.OK, "User Login successfully",
@@ -136,6 +137,28 @@ public class AuthController {
                         null
                 ));
             }
+    }
+
+    /**
+     * User Logout Endpoint
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<?>> logout(@RequestParam String refreshToken, HttpServletRequest request){
+        try{
+            String accessToken = request.getHeader("Authorization");
+            authService.logout(refreshToken,accessToken);
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(
+                    HttpStatus.OK,
+                    "User logged out successfully",
+                    null
+            ));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            ));
+        }
     }
 
 

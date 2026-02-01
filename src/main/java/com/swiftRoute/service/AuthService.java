@@ -21,6 +21,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +35,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private  final JwtUtil jwtUtil;
+    private final TokenService tokenService;
     /**
      * User Registration
      * @param registerRequest
@@ -126,7 +129,7 @@ public class AuthService {
      */
     public Map<String, ?> refreshToken(RefreshRequest request)throws UsernameNotFoundException {
         String refreshToken = request.refreshToken().trim();
-        if (!jwtUtil.validateToken(refreshToken)) {
+        if (!tokenService.validateToken(refreshToken)) {
             log.warn("Invalid refresh token submitted");
             throw new JwtException("Invalid Refresh token");
         }
@@ -159,5 +162,16 @@ public class AuthService {
     private boolean emailAlreadyExist(String email, UserRole role){
             log.info("check email and Role already exist");
             return userRepository.existsByEmailAndRole(email,role).orElse(false);
+    }
+
+    public void logout(String token, String accessToken) {
+        // Invalidate the refresh token (implementation depends on your token management strategy)
+        log.info("Logout called for refresh token: {}", token);
+        if(!tokenService.validateToken(token)){
+            log.info("Invalid Token");
+            throw new JwtException("Invalid Token");
+        }
+        tokenService.blacklistToken(token, accessToken);
+//        tokenService.isBlacklistToken(accessToken);
     }
 }

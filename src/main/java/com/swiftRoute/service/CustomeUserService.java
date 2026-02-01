@@ -18,11 +18,11 @@ public class CustomeUserService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-    @RedisCacheable(
-            key = "'user:detail:' + #username",
-            ttl = 500,
-            unit = TimeUnit.SECONDS
-    )
+//    @RedisCacheable(
+//            key = "'user:detail:' + #username",
+//            ttl = 500,
+//            unit = TimeUnit.SECONDS
+//    )
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("Loading user by username: {}", username);
