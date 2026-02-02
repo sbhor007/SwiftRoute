@@ -43,8 +43,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/api/auth/login",
                                 "/api/auth/register",
                                 "/api/auth/send-otp/**",
-                                "/api/auth/verify-otp",
-                                "/api/auth/refresh"
+                                "/api/auth/verify-otp"
+//                                "/api/auth/refresh"
                         ).permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/hello","/send/mail").permitAll()
