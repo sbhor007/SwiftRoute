@@ -53,6 +53,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
+//                        .requestMatchers("/api/driver/**").hasAllRoles("DRIVER","ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class);
 

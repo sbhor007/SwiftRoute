@@ -10,4 +10,5 @@ import com.swiftRoute.entity.Vehicle;
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
 
+    boolean existsByVehicleNumber(String vehicleNumber);
 }

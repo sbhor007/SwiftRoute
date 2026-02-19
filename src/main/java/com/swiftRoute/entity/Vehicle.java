@@ -17,6 +17,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Vehicle {
 
     @Id
@@ -36,8 +37,7 @@ public class Vehicle {
     @Column(nullable = false)
     private Boolean isAssigned;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_driver_id")
+    @OneToOne(mappedBy = "assignedVehicle", fetch = FetchType.LAZY)
     private Driver assignedDriver;
 
     private LocalDateTime createdAt;
@@ -47,5 +47,10 @@ public class Vehicle {
         createdAt = LocalDateTime.now();
         if (isActive == null) isActive = true;
         if (isAssigned == null) isAssigned = false;
+    }
+
+    @Transient
+    public boolean isAssigned() {
+        return assignedDriver != null;
     }
 }

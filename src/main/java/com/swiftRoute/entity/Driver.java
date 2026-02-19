@@ -50,6 +50,10 @@ public class Driver {
     @JoinColumn(name = "user_id", unique = true)
     private User user;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_vehicle_id", unique = true)
+    private Vehicle assignedVehicle;
+
     @OneToMany(mappedBy = "driver", fetch = FetchType.LAZY)
     private List<Trip> trips;
 

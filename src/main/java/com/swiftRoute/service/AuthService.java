@@ -44,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
+    private final DriverService driverService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private  final JwtUtil jwtUtil;
@@ -74,6 +75,10 @@ public class AuthService {
                     .build();
             log.info("Registered user with email {} and role {}.", user.getEmail(), user.getRole());
             userRepository.save(user);
+
+            if (registerRequest.role() == UserRole.DRIVER) {
+                driverService.createDriver(user);
+            }
         } catch (Exception e) {
             log.error("Registration failed for user with email {} and role {}: {}",
                     registerRequest.email(), registerRequest.role(), e.getMessage());
