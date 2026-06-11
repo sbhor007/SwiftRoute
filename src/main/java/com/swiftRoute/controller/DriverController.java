@@ -95,4 +95,21 @@ public class DriverController {
                 .Message("Vehicle removed successfully")
                 .build());
     }
+
+    @GetMapping("/status/{driverId}")
+    public ResponseEntity<ApiResponse<?>> driverStatus(@PathVariable UUID driverId){
+        return null;
+    }
+    @PatchMapping("/status/{driverId}/{status}")
+    public ResponseEntity<ApiResponse<?>> updateDriverStatus(@PathVariable UUID driverId,@PathVariable String status){
+        return null;
+    }
+
+    @GetMapping("/status/online")
+    public ResponseEntity<ApiResponse<?>> getOnlineDrivers(@PathVariable UUID driverId){
+        return null;
+    }
+
+
+
 }

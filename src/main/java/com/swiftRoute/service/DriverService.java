@@ -137,4 +137,16 @@ public class DriverService implements CrudService<Driver,UUID> {
     public List<Driver> getAll() {
         return List.of(driverRepository.findAll().toArray(new Driver[0]));
     }
+
+    @RedisCacheable(
+            key = "'driver:status:' + #driverId",
+            ttl = 900,
+            unit = TimeUnit.SECONDS
+    )
+    public DriverStatus driverStatus(UUID driverId){
+        Driver driver = this.getById(driverId);
+        return driver.getStatus();
+    }
+
+
 }

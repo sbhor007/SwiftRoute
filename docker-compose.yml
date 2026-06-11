@@ -41,8 +41,9 @@ services:
       - swiftroute-network
 
   app:
-    build: .
-    container_name: spring_app
+#    build: .
+    image: santosh0722/swiftroute:latest
+    container_name: swiftroute-app
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -52,9 +53,12 @@ services:
       redis:
         condition: service_healthy
     environment:
+      JWT_SECRET: ${JWT_SECRET}
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/swiftroute?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: appuser
-      SPRING_DATASOURCE_PASSWORD: apppass
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
     networks:

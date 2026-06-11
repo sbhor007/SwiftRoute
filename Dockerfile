@@ -35,4 +35,4 @@ USER spring
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["java","--enable-preview","-jar","app.jar"]

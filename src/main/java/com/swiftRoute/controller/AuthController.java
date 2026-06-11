@@ -37,7 +37,7 @@ public class AuthController {
             authService.register(registerRequest);
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(HttpStatus.OK,"User Register Cussessfully",null));
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(HttpStatus.BAD_REQUEST, STR."User Registration Fail : \{e.getMessage()}",null));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(HttpStatus.BAD_REQUEST, "User Registration Fail : " + e.getMessage(),null));
         }
 
     }
