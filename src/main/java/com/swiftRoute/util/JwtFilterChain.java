@@ -34,6 +34,7 @@ public class JwtFilterChain extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             log.info("JwtFilterChain: Processing request to {}", request.getRequestURI());
+                log.info(request.toString());
             String authorizationHeader = request.getHeader("Authorization");
 
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {

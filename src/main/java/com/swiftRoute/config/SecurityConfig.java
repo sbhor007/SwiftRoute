@@ -1,5 +1,7 @@
 package com.swiftRoute.config;
 
+import com.swiftRoute.handler.OAuth2LoginFailureHandler;
+import com.swiftRoute.handler.OAuth2LoginSuccessHandler;
 import com.swiftRoute.util.JwtFilterChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +33,12 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Autowired
     private JwtFilterChain jwtFilterChain;
 
+    @Autowired
+    private OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
+    @Autowired
+    private OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
@@ -55,6 +63,20 @@ public class SecurityConfig implements WebMvcConfigurer {
                         ).permitAll()
 //                        .requestMatchers("/api/driver/**").hasAllRoles("DRIVER","ADMIN")
                         .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2LoginSuccessHandler)
+                        .failureHandler(oAuth2LoginFailureHandler)
+                )
+                .exceptionHandling(ex -> ex
+                        .defaultAuthenticationEntryPointFor(
+                                (request, response, authException) ->{
+                                    response.setContentType("application/json");
+                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                    response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                                },
+                                request -> true
+                        )
+                )
                 .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -85,7 +107,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
